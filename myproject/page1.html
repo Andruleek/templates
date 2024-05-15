@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Створення сайту для автора</title>
+</head>
+<body>
+    <button>
+        <a href="file:///C:/Users/Admin/Desktop/templates/myproject/0.html" target="Додому">Додому</a>
+    </button>
+    <form id="authorForm">
+        <label for="authorName">Ім'я автора:</label>
+        <input type="text" id="authorName" name="authorName"><br><br>
+        <label for="authorBio">Біографія автора:</label><br>
+        <textarea id="authorBio" name="authorBio" rows="4" cols="50"></textarea><br><br>
+        <button type="submit">Зберегти дані</button>
+    </form>
+
+    <input type="text" id="searchInput" onkeyup="searchAuthors()" placeholder="Пошук за іменем автора..."><br><br>
+
+    <div id="receivedData"></div>
+    
+    <script>
+        // Функція для збереження даних в локальному сховищі
+        function saveData(authorName, authorBio) {
+            // Перевіряємо, чи вже існують дані в локальному сховищі
+            let existingData = JSON.parse(localStorage.getItem('authors')) || [];
+            existingData.push({ authorName, authorBio });
+            localStorage.setItem('authors', JSON.stringify(existingData));
+        }
+
+        // Функція для видалення даних з локального сховища
+        function deleteData(index) {
+            let savedData = JSON.parse(localStorage.getItem('authors'));
+            savedData.splice(index, 1);
+            localStorage.setItem('authors', JSON.stringify(savedData));
+            displayData(); // Оновлюємо виведені дані
+        }
+
+        // Обробник події для форми
+        document.getElementById('authorForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Перешкоджаємо стандартному поведінці форми
+
+            const authorName = document.getElementById('authorName').value;
+            const authorBio = document.getElementById('authorBio').value;
+
+            saveData(authorName, authorBio); // Зберігаємо дані в локальному сховищі
+            displayData(); // Відображаємо збережені дані на сторінці
+        });
+
+        // Функція для відображення збережених даних на сторінці
+        function displayData() {
+            const savedData = JSON.parse(localStorage.getItem('authors'));
+            if (savedData !== null) {
+                document.getElementById('receivedData').innerHTML = "<h3>Введені дані:</h3>";
+                savedData.forEach((data, index) => {
+                    document.getElementById('receivedData').innerHTML += "<p>Ім'я автора: " + data.authorName + "</p><p>Біографія автора: " + data.authorBio + "</p><button onclick='deleteData(" + index + ")'>Видалити</button><br>";
+                });
+            }
+        }
+
+        // Викликаємо функцію для відображення даних при завантаженні сторінки
+        window.onload = displayData;
+
+        // Функція для пошуку авторів за іменем
+        function searchAuthors() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const savedData = JSON.parse(localStorage.getItem('authors'));
+
+            let filteredAuthors = savedData.filter(data => {
+                return data.authorName.toLowerCase().includes(input);
+            });
+
+            document.getElementById('receivedData').innerHTML = "<h3>Результати пошуку:</h3>";
+            filteredAuthors.forEach(author => {
+                document.getElementById('receivedData').innerHTML += "<p>Ім'я автора: " + author.authorName + "</p><p>Біографія автора: " + author.authorBio + "</p>";
+            });
+        }
+    </script>
+</body>
+</html>
